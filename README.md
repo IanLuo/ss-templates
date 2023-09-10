@@ -20,3 +20,5 @@ flutter
 ## script
 ## cheatsheet
 ## direnv
+
+Templates can be directly imported into a project, and can customize by passing arguments to it.
