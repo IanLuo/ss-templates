@@ -1,12 +1,13 @@
 { 
 pkgs
-, testFolder ? "tests"
+, testFolder
 , python
 , stdenv
 }:
 
 let
   do-test-all = pkgs.writeScriptBin "do_test_all" ''
+    echo "Running all tests in '${testFolder}'"
     pytest ${testFolder}
   '';
 

@@ -9,15 +9,11 @@
 let
   python = pkgs.${pythonVersion}.withPackages (ps: with ps; [
     ps.pip
-    ps.pytest
-    ps.pytest-cov
   ] ++ (builtins.map (pkg: ps.${pkg}) buildInputs));
 
-  testTools = pkgs.callPackage ./test-tools.nix { inherit python; };
+  testTools = pkgs.callPackage ./pytest.nix { inherit python testFolder; };
 
-  tools = [
-    testTools
-  ];
+  tools = [ testTools ];
 
 in with pkgs; 
   stdenv.mkDerivation {
