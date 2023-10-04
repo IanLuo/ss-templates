@@ -38,7 +38,7 @@ let
 
 in stdenv.mkDerivation {
   name = name;
-
+  
   src = src;
 
   dontConfigure = true;
@@ -58,6 +58,8 @@ in stdenv.mkDerivation {
       (lib.lists.filter (x: lib.attrsets.hasAttrByPath ["isUnit"] x) dependencies));
 
   passthru.sdk = sdk;
+
+  passthru.name = name;
   
   passthru.buildapp = buildapp;
 

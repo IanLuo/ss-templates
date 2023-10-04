@@ -9,6 +9,7 @@ sslib:
 , src ? null 
 , lib
 , testFolder ? "tests"
+, packages ? []
 , ...
 }:
 
@@ -17,13 +18,15 @@ let
     ps.pip
   ] ++ buildInputs(ps));
 
-  buildapp = packges: (pkgs.callPackage ./buildapp.nix { inherit name version src python; }); 
+  buildapp = _: (pkgs.callPackage ./buildapp.nix { 
+    inherit name version src python packages; 
+  }); 
 
   testTool = pkgs.callPackage ./pytest.nix { inherit python testFolder sslib; };
 
 in with pkgs; 
   sslib.defineUnit {
-    name = "python-app-${name}-${version}";
+    name = name;
 
     src = src;
 
