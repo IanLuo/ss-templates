@@ -6,17 +6,21 @@
 
   outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system: 
     let 
+      sslib = pkgs.callPackage ./sslib {};
+
       pkgs = import nixpkgs { inherit system; };
 
       forAllSystems = pkgs.lib.genAttrs pkgs.lib.systems.flakeExposed;
     in with pkgs;{
-      backend = callPackage ./backend {};
+      backend = callPackage ./backend { inherit sslib; };
 
-      frontend = callPackage ./frontend {};
+      frontend = callPackage ./frontend { inherit sslib; };
       
-      mobile = callPackage ./mobile {};
+      mobile = callPackage ./mobile { inherit sslib; };
 
-      native = callPackage ./native {};
+      native = callPackage ./native { inherit sslib; };
+      
+      powers = callPackage ./powers { inherit sslib; };
 
       devShells.default = mkShell {
         buildInputs = [

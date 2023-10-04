@@ -3,6 +3,7 @@ pkgs
 , testFolder
 , python
 , stdenv
+, sslib
 }:
 
 let
@@ -16,20 +17,14 @@ let
   '';
 
 in
-  stdenv.mkDerivation {
+  sslib.defineUnit {
     name = "python-test";
-    version = "0.0.1";
-    src = ./.;
 
-    propagatedBuildInputs = [ 
+    dependencies = [ 
       python.pkgs.pytest 
       python.pkgs.pytest-cov
+      python.pkgs.pytest-mock
+      do-test-all
+      code-coverage
     ];
-
-    buildPhase = ''
-      mkdir -p $out/bin
-       
-      ln -s ${do-test-all}/bin/do_test_all $out/bin/do_test_all
-      ln -s ${code-coverage}/bin/code_coverage $out/bin/code_coverage
-    '';
   }

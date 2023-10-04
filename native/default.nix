@@ -1,5 +1,8 @@
-{ pkgs, lib, ... }:
+{ pkgs
+, lib
+, sslib
+, ... }:
 
 {
-  python = pkgs.callPackage ./python;
+  python = pkgs.callPackage (import ./python sslib);
 }

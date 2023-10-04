@@ -1,7 +1,10 @@
 {
 pkgs
+, sslib
 }:
-stdenv.mkDerivation {
-  name = "tools";
-  version = "0.0.1";
+
+{
+  db = {
+    postgres = pkgs.callPackage (import ./postgres sslib);
+  };
 }

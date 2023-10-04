@@ -1,35 +1,36 @@
+sslib:
+
 {
  pkgs
 , pythonVersion ? "python39"
-, buildInputs ? []
-, src
+, name
+, version
+, buildInputs ? ps: []
+, src ? null 
 , lib
 , testFolder ? "tests"
-, ...}:
+, ...
+}:
+
 let
   python = pkgs.${pythonVersion}.withPackages (ps: with ps; [
     ps.pip
-  ] ++ (builtins.map (pkg: ps.${pkg}) buildInputs));
+  ] ++ buildInputs(ps));
 
-  testTools = pkgs.callPackage ./pytest.nix { inherit python testFolder; };
+  buildapp = packges: (pkgs.callPackage ./buildapp.nix { inherit name version src python; }); 
 
-  tools = [ testTools ];
+  testTool = pkgs.callPackage ./pytest.nix { inherit python testFolder sslib; };
 
 in with pkgs; 
-  stdenv.mkDerivation {
-      name = "devne-native-python-app";
-      version = "0.0.1";
-      src = src;
+  sslib.defineUnit {
+    name = "python-app-${name}-${version}";
 
-      propagatedBuildInputs =  [ 
-        python 
-      ] ++ tools;
+    src = src;
 
-      buildPhase = ''
-        mkdir -p $out/bin
-      '';
+    sdk = python;
+    
+    buildapp = buildapp;
 
-      passthru.commands = builtins.fold (last: acc: acc ++ last) [] tools;
+    dependencies = [ testTool python ];
+  }
 
-      passthru.python = python;
-    }
