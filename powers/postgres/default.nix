@@ -17,12 +17,11 @@ let
                 mkdir -p $PGDATA
               fi
 
-              set -e
-              set -x
               psql -v ON_ERROR_STOP=1 --username "$username" <<-EOSQL
                   CREATE USER $username WITH PASSWORD '$password';
                   CREATE DATABASE $database;
                   GRANT ALL PRIVILEGES ON DATABASE $database TO $username;  
+              EOSQL
             '';
 
   restart-db = pkgs.writeScriptBin "restart_db" ''
@@ -33,8 +32,6 @@ let
                 init_db
               fi
 
-              set -e
-              set -x
               pg_ctl -D $PGDATA -l logfile restart
             '';
 
@@ -42,7 +39,7 @@ let
     PGUSER = username;
     PGPASSWORD = password;
     PGDATABASE = database;
-    PGDATA = folder;
+    PGDATA = sslib.env.pathInDataFolder folder;
     PGHOST = if host == "" then folder else host;
   };
 in
