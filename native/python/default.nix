@@ -10,13 +10,16 @@ sslib:
 , lib
 , testFolder ? "tests"
 , packages ? []
+, pyprojectPath ? null
 , ...
 }:
 
 let
   python = pkgs.${pythonVersion}.withPackages (ps: with ps; [
     ps.pip
-  ] ++ buildInputs(ps));
+  ]); 
+
+  otherPkgs = buildInputs(python.pkgs);
 
   buildapp = _: (pkgs.callPackage ./buildapp.nix { 
     inherit name version src python packages; 
@@ -34,6 +37,6 @@ in with pkgs;
     
     buildapp = buildapp;
 
-    dependencies = [ testTool python ];
+    dependencies = [ testTool python ] ++ otherPkgs;
   }
 

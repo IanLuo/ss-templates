@@ -5,6 +5,7 @@ name
 , src
 , packages ? [] 
 , python
+, pyprojectPath ? null
 }:
 
 python.pkgs.buildPythonApplication {
@@ -24,7 +25,11 @@ python.pkgs.buildPythonApplication {
 
   dontConfigure = true;
 
-  preBuild = ''
+  preBuild = if pyprojectPath != null then 
+  ''
+    cp ${pyprojectPath} pyproject.toml
+  ''
+  else '' 
     cat > pyproject.toml <<EOF
       [build-system]
       requires = ["setuptools ~= 58.0", "cython ~= 0.29.0"]
