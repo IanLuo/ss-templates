@@ -9,7 +9,7 @@ pkgs
 let
   do-test-all = pkgs.writeScriptBin "do_test_all" ''
     echo "Running all tests in '${testFolder}'"
-    pytest ${testFolder}
+    pytest ${testFolder} $1
   '';
 
   code-coverage = pkgs.writeScriptBin "code_coverage" ''
