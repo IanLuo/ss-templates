@@ -15,11 +15,11 @@ sslib:
 }:
 
 let
-  python = pkgs.${pythonVersion}.withPackages (ps: with ps; [
-    ps.pip
-  ]); 
-
   otherPkgs = buildInputs(python.pkgs);
+
+  python = pkgs.${pythonVersion}.withPackages (ps: with ps; ([
+    pip
+  ])); 
 
   buildapp = _: (pkgs.callPackage ./buildapp.nix { 
     inherit name version src python packages; 
@@ -29,7 +29,7 @@ let
 
 in with pkgs; 
   sslib.defineUnit {
-    name = name;
+    name = "${name}-sdk-python-${pythonVersion}";
 
     src = src;
 

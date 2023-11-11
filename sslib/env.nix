@@ -1,6 +1,6 @@
 let 
   SSBase = "SS_PROJECT_BASE";
-  RootFolder = ".ss";
+  RootFolder = "ss_conf";
   ConfigFile ="${RootFolder}/ss.yaml";
   FlakeFile = "${RootFolder}/flake.nix";
   DataFolder = "${RootFolder}/data";

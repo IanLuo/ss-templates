@@ -32,9 +32,8 @@ let
       (lib.attrsets.mapAttrsToList (x: y: "export ${x}=${y}") envs)
     else "";
 
-  registerToEnv = ''
-    export SS_UNITS=${name}:$SS_UNITS
-  '';
+# show all units
+  registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
 
 in stdenv.mkDerivation {
   name = name;

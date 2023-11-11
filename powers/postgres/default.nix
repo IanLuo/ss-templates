@@ -6,7 +6,7 @@ pkgs
 , password ? "admin"
 , database ? "database"
 , host ? "" 
-, folder
+, folder ? "${sslib.env.dataFolder}/db/postgres"
 , stdenv
 }:
 let 
