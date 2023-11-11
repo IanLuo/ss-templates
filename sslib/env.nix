@@ -3,7 +3,7 @@ let
   RootFolder = "ss_conf";
   ConfigFile ="${RootFolder}/ss.yaml";
   FlakeFile = "${RootFolder}/flake.nix";
-  DataFolder = "${RootFolder}/data";
+  DataFolder = ".ss_data";
 
   pathInProject = relative: "\$${SSBase}/${relative}";
   pathInDataFolder = relative: pathInProject "${DataFolder}/${relative}";
