@@ -29,10 +29,14 @@ let
 
               if [ ! -d $PGDATA ]; then
                 echo "No PGDATA folder found, initializing database"
-                init_db
+                setup-db
               fi
 
-              pg_ctl -D $PGDATA -l logfile restart
+              if [ ! pg_ctl status ]; then
+                pg_ctl stop
+              fi
+
+              pg_ctl -D $PGDATA -o '-k $PGHOST' start
             '';
 
   env = {
