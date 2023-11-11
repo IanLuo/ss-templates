@@ -6,11 +6,11 @@ pkgs
 , password ? "admin"
 , database ? "database"
 , host ? "" 
-, folder ? "${sslib.env.dataFolder}/db/postgres"
+, folder ? sslib.env.pathInDataFolder "db/postgres"
 , stdenv
 }:
 let 
-  init-db = pkgs.writeScriptBin "init_db" ''
+  setup-db = pkgs.writeScriptBin "setup-db" ''
               #!/bin/sh
 
               if [ ! -d $PGDATA ]; then
@@ -24,7 +24,7 @@ let
               EOSQL
             '';
 
-  restart-db = pkgs.writeScriptBin "restart_db" ''
+  restart-db = pkgs.writeScriptBin "restart-db" ''
               #!/bin/sh
 
               if [ ! -d $PGDATA ]; then
@@ -46,7 +46,7 @@ in
   sslib.defineUnit {
     name = "postgres";
 
-    dependencies = [ pkgs.postgresql init-db restart-db ];
+    dependencies = [ pkgs.postgresql setup-db restart-db ];
 
     envs = env;
   }
