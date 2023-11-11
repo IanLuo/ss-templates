@@ -32,11 +32,11 @@ let
                 setup-db
               fi
 
-              if [ ! pg_ctl status ]; then
+              if pg_ctl status >/dev/null 2>&1; then
                 pg_ctl stop
               fi
 
-              pg_ctl -D $PGDATA -o '-k $PGHOST' start
+              pg_ctl -D $PGDATA start
             '';
 
   env = {
