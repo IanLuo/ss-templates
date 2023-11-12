@@ -2,6 +2,7 @@
 , flutterVersion ? "3.10.6"
 , folder
 , name ? "flutter project"
+, stdenv
 }:
  stdenv.mkDerivation {
     name = "${name} - flutter(${flutterVersion})";
@@ -22,4 +23,4 @@
        
       echo $(flutter --version)
     '';
-  };
+  }

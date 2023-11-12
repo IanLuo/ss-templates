@@ -21,9 +21,9 @@ let
     pip
   ])); 
 
-  buildapp = _: (pkgs.callPackage ./buildapp.nix { 
+  buildapp = pkgs.callPackage ./buildapp.nix { 
     inherit name version src python packages; 
-  }); 
+  }; 
 
   testTool = pkgs.callPackage ./pytest.nix { inherit python testFolder sslib; };
 
@@ -39,4 +39,3 @@ in with pkgs;
 
     dependencies = [ testTool python ] ++ otherPkgs;
   }
-
