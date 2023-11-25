@@ -2,7 +2,7 @@
 pkgs , stdenv , name, lib 
 
 # the source of the unit, can be a git repo, or a local path
-, src ? ./.
+, src
 
 # script to run when build this unit, only used internally
 # help to achieve the functions for this unit

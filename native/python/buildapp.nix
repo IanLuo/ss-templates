@@ -3,41 +3,35 @@ name
 , version
 , buildInputs ? []
 , src
-, packages ? [] 
 , python
-, pyprojectPath ? null
+, description ? ""
+, authors ? []
+, pkgs
+, lib
+, format ? "pyproject"
 }:
 
+with lib.strings; let
+  pyproject = ''
+      cat > pyproject.toml <<EOF
+        [project]
+        name = "${name}"
+        version = "${version}"
+        description = "${description}"
+        authors = ${toJSON authors}
+
+        [project.scripts]
+        ${name} = "main:app"
+      EOF
+  '';
+in
 python.pkgs.buildPythonApplication {
   pname = name;
-
   version = version;
-
-  format = "pyproject";
-
+  format = format;
+  propagatedBuildInputs = [python.pkgs.setuptools] ++ buildInputs;
   src = src;
-
-  propagatedBuildInputs = buildInputs ++ [
-    python.pkgs.setuptools_scm
-    python.pkgs.setuptools
-    python.pkgs.wheel
-  ];
-
   dontConfigure = true;
-
-  preBuild = if pyprojectPath != null then 
-  ''
-    cp ${pyprojectPath} pyproject.toml
-  ''
-  else '' 
-    cat > pyproject.toml <<EOF
-      [build-system]
-      requires = ["setuptools ~= 58.0", "cython ~= 0.29.0"]
-      packages = ${builtins.toJSON packages}
-
-      [project]
-      name = "${name}"
-      version = "${version}"
-    EOF
-  '';
+  # preBuild = pyproject;
 }
+

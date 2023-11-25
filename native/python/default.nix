@@ -6,10 +6,9 @@ sslib:
 , name
 , version
 , buildInputs ? ps: []
-, src ? null 
+, src
 , lib
 , testFolder ? "tests"
-, packages ? []
 , pyprojectPath ? null
 , ...
 }:
@@ -22,7 +21,8 @@ let
   ])); 
 
   buildapp = pkgs.callPackage ./buildapp.nix { 
-    inherit name version src python packages; 
+    inherit name version src python pkgs;
+    buildInputs = otherPkgs;
   }; 
 
   testTool = pkgs.callPackage ./pytest.nix { inherit python testFolder sslib; };
@@ -31,7 +31,7 @@ in with pkgs;
   sslib.defineUnit {
     name = "${name}-sdk-python-${pythonVersion}";
 
-    src = src;
+    src = (builtins.trace "src: ${src}" src);
 
     sdk = python;
     
