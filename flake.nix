@@ -11,16 +11,12 @@
       pkgs = import nixpkgs { inherit system; };
 
       forAllSystems = pkgs.lib.genAttrs pkgs.lib.systems.flakeExposed;
-    in with pkgs;{
-      backend = callPackage ./backend { inherit sslib; };
 
-      frontend = callPackage ./frontend { inherit sslib; };
-      
-      mobile = callPackage ./mobile { inherit sslib; };
+      commonParams = { inherit pkgs sslib; };
+    in with pkgs; {
+      language = callPackage ./language commonParams;
 
-      native = callPackage ./native { inherit sslib; };
-      
-      powers = callPackage ./powers { inherit sslib; };
+      powers = callPackage ./powers commonParams;
 
       devShells.default = mkShell {
         buildInputs = [

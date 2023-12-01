@@ -23,6 +23,10 @@ pkgs , stdenv , name, lib
 # build the app and package it
 # this is for nix command 'nix build'
 , buildapp ? null
+
+, installPhase ? null
+
+, passthus ? {} 
 }:
 
 let
@@ -34,6 +38,17 @@ let
 
 # show all units
   registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
+
+  passthrus = {
+    inherit name sdk src buildapp;
+    script = builtins.concatStringsSep "\n" 
+      ([ exportsString registerToEnv ] 
+      ++ builtins.map 
+        (x: x.script) 
+        (lib.lists.filter (x: lib.attrsets.hasAttrByPath ["isUnit"] x) dependencies));
+    dependencies = dependencies;
+    isUnit = true;
+  } // passthus;
 
 in stdenv.mkDerivation {
   name = name;
@@ -50,19 +65,7 @@ in stdenv.mkDerivation {
 
   propagatedBuildInputs = dependencies;
 
-  passthru.script = builtins.concatStringsSep "\n" 
-    ([ exportsString registerToEnv ] 
-    ++ builtins.map 
-      (x: x.script) 
-      (lib.lists.filter (x: lib.attrsets.hasAttrByPath ["isUnit"] x) dependencies));
+  installPhase = installPhase ? ""; 
 
-  passthru.sdk = sdk;
-
-  passthru.name = name;
-  
-  passthru.buildapp = buildapp;
-
-  passthru.dependencies = dependencies;
-
-  passthru.isUnit = true;
+  passthru = passthrus;
 }

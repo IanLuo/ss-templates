@@ -1,9 +1,12 @@
-{ 
+{
 pkgs
-, testFolder
-, python
 , stdenv
 , sslib
+}:
+
+{ 
+testFolder ? "tests"
+, python
 }:
 
 let
