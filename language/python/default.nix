@@ -2,33 +2,26 @@
 sslib
 , pkgs
 , lib
+, package 
 }:
 
 {
 pythonVersion ? "python311"
 , name
 , version
+, buildInputsDev ? []
 , buildInputs ? []
 , src
 , test ? null
-, package ? null
 }:
 
 let
   python = pkgs.${pythonVersion}.withPackages (ps: with ps; ([
     pip
-  ] ++ buildInputs)); 
+  ] ++ buildInputsDev)); 
 
-  otherPkgs = with python.pkgs; buildInputs;
-
-  testTool = if test == null then null else test { 
-    inherit name version src python pkgs;
-    testUnit = test;
-  };
-
-  package = if package == null then null else package { 
-    inherit name version src python pkgs;
-    buildInputs = otherPkgs;
+  package = if package == null then null else package {
+    inherit python name version src buildInputs;
   };
 
 in with pkgs; 
@@ -41,5 +34,5 @@ in with pkgs;
     
     package = package;
 
-    dependencies = [ testTool python ] ++ otherPkgs;
+    dependencies = [ python ] ++ buildInputsDev;
   }

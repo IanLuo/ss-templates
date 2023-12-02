@@ -22,7 +22,7 @@ pkgs , stdenv , name, lib
 # produce and packages will have this function, by simply calling this function will
 # build the app and package it
 # this is for nix command 'nix build'
-, buildapp ? null
+, package ? null
 
 , installPhase ? null
 
@@ -40,7 +40,7 @@ let
   registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
 
   passthrus = {
-    inherit name sdk src buildapp;
+    inherit name sdk src package;
     script = builtins.concatStringsSep "\n" 
       ([ exportsString registerToEnv ] 
       ++ builtins.map 

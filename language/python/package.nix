@@ -7,7 +7,7 @@ pkgs
 description ? ""
 , name
 , format ? "pyproject"
-, installPhase ? null
+, installScript ? null
 , python
 , version
 , buildInputs ? []
