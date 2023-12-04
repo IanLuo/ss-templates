@@ -10,14 +10,8 @@
 
       pkgs = import nixpkgs { inherit system; };
 
-      forAllSystems = pkgs.lib.genAttrs pkgs.lib.systems.flakeExposed;
-
       commonParams = { inherit pkgs sslib; };
     in with pkgs; {
-      language = callPackage ./language commonParams;
-
-      powers = callPackage ./powers commonParams;
-
       devShells.default = mkShell {
         buildInputs = [
           bashInteractive

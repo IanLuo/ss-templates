@@ -1,21 +1,17 @@
 {
 pkgs
 , lib
-}:
-
-{
-description ? ""
-, name
-, format ? "pyproject"
-, installScript ? null
-, python
-, version
-, buildInputs ? []
+, buildInputs
 , src
+, python
+, name
+, version
+, description ? ""
+, format 
+, installScript ? null
 }:
 
 with lib.strings; python.pkgs.buildPythonApplication {
-  installPhase = installPhase ? "";
   pname = name;
   version = version;
   format = format;

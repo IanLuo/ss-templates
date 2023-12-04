@@ -1,8 +1,11 @@
-commonParams:
-
 {
-  python = commonParams.pkgs.callPackage ./python 
-    (commonParams // { package = (commonParams.pkgs.callPackage ./python/package.nix commonParams); });
+pkgs
+, sslib
+}@commonParams:
 
-  pytest = commonParams.pkgs.callPackage ./python/pytest.nix commonParams;
+with pkgs; {
+  python = callPackage ./python 
+    (commonParams // { package = callPackage ./python/package.nix; });
+
+  pytest = callPackage ./python/pytest.nix commonParams;
 }
