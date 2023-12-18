@@ -8,26 +8,21 @@ pkgs , stdenv , name, lib
 # help to achieve the functions for this unit
 , buildScript ? "" 
 
-# if the unit has a sdk, will be here, atmost one
-# used for 'nix develop'
-, sdk ? null
-
-# deveritions that needed to support this unit
-, dependencies ? []
-
 # env vars that will be set by this unit
 , envs ? {} 
 
-# function to build the app by user project, only some unit that needs to 
-# produce and packages will have this function, by simply calling this function will
-# build the app and package it
-# this is for nix command 'nix build'
-, package ? null
-
 , installPhase ? null
 
-, passthus ? {} 
-}:
+# this will be able to be used by other units as parameter
+# if not provided, the unit itself will be used
+, value ? null
+
+, buildInputs ? []
+
+, passthrus ? {}
+
+, ...
+}@inputs:
 
 let
   exportsString = if envs != null 
@@ -38,34 +33,34 @@ let
 
 # show all units
   registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
+  value = inputs.value or null;
 
-  passthrus = {
-    inherit name sdk src package;
-    script = builtins.concatStringsSep "\n" 
-      ([ exportsString registerToEnv ] 
-      ++ builtins.map 
-        (x: x.script) 
-        (lib.lists.filter (x: lib.attrsets.hasAttrByPath ["isUnit"] x) dependencies));
-    dependencies = dependencies;
+  passthrus_ = {
+    valur = inputs.value;
+    script = builtins.concatStringsSep "\n" ([ exportsString registerToEnv ]);
     isUnit = true;
-  } // passthus;
+  } // (inputs.passthrus or {});
 
-in stdenv.mkDerivation {
-  name = name;
-  
-  src = src;
+in
+  let 
+  drv = stdenv.mkDerivation {
+    name = inputs.name;
 
-  dontConfigure = true;
+    src = inputs.src;
 
-  buildPhase = ''
-    mkdir -p $out/bin
+    installPhase = inputs.installPhase or "";
 
-    ${buildScript}
-  '';
+    dontConfigure = if (lib.attrsets.hasAttrByPath ["dontConfigure"] inputs) then inputs.dontConfigure else false;
 
-  propagatedBuildInputs = dependencies;
+    buildPhase = ''
+      mkdir -p $out/bin
 
-  installPhase = installPhase ? ""; 
+      ${buildScript}
+    '';
 
-  passthru = passthrus;
-}
+    propagatedBuildInputs = buildInputs;
+
+    passthru = passthrus_;
+  };
+  in 
+    drv 

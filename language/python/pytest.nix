@@ -2,11 +2,11 @@
 pkgs
 , stdenv
 , sslib
+, python
 }:
 
 { 
 testFolder ? "tests"
-, python
 }:
 
 let
@@ -23,7 +23,7 @@ in
   sslib.defineUnit {
     name = "python-test";
 
-    dependencies = [ 
+    buildInputs = [ 
       python.pkgs.pytest 
       python.pkgs.pytest-cov
       python.pkgs.pytest-mock

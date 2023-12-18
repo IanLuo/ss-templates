@@ -9,24 +9,24 @@ sslib
 pythonVersion ? "python311"
 , name
 , version
-, buildInputsDev ? []
-, buildInputs ? []
+, libs-default ? [] 
+, libs-development ? [] 
 , buildFormat ? "wheel"
 , installScript ? null
 , src
-, test ? null
+, test ? "pytest"
 }:
 
 let
+  pkgsBuiltins = if libs-default == null then [] else map (p: python.pkgs.${p}) libs-default ;
+  pkgsBuiltinsDev = if libs-development == null then [] else map (p: python.pkgs.${p}) libs-development ;
+
   python = pkgs.${pythonVersion}.withPackages (ps: with ps; ([
     pip
-  ])); 
-
-  pkgsBuiltins = map (p: python.pkgs.${p}) buildInputs;
-  pkgsBuiltinsDev = map (p: python.pkgs.${p}) buildInputs;
+  ] ++ pkgsBuiltins ++ pkgsBuiltinsDev)); 
 
   package_ = if package == null then null else package {
-    inherit python name version src installScript;
+    inherit python version src installScript name;
     buildInputs = pkgsBuiltins;
     format = buildFormat;
   };
@@ -34,12 +34,8 @@ let
 in with pkgs; 
   sslib.defineUnit {
     inherit src;
-
     name = "${name}-sdk-python-${pythonVersion}";
-
-    sdk = python; 
-    
-    package = package_;
-
-    dependencies = [ python ] ++ pkgsBuiltinsDev ++ pkgsBuiltins;
+    value = python; 
+    passthrus = { "package" = package_; };
+    buildInputs = [python];
   }

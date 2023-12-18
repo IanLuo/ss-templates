@@ -13,7 +13,7 @@ pkgs
 
 with lib.strings; python.pkgs.buildPythonApplication {
   pname = name;
-  version = version;
+  version = builtins.toString version;
   format = format;
   propagatedBuildInputs = [python.pkgs.setuptools] ++ buildInputs;
   src = src;

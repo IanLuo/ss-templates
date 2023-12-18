@@ -50,7 +50,7 @@ in
   sslib.defineUnit {
     name = "postgres";
 
-    dependencies = [ pkgs.postgresql setup-db restart-db ];
+    buildInputs = [ pkgs.postgresql setup-db restart-db ];
 
     envs = env;
   }
