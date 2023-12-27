@@ -14,9 +14,7 @@ pythonVersion ? "python311"
 , buildFormat ? "wheel"
 , installScript ? null
 , src
-, test ? "pytest"
 }:
-
 let
   pkgsBuiltins = if libs-default == null then [] else map (p: python.pkgs.${p}) libs-default ;
   pkgsBuiltinsDev = if libs-development == null then [] else map (p: python.pkgs.${p}) libs-development ;
@@ -37,5 +35,5 @@ in with pkgs;
     name = "${name}-sdk-python-${pythonVersion}";
     value = python; 
     passthrus = { "package" = package_; };
-    buildInputs = [python];
+    buildInputs = [ python ];
   }

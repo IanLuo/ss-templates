@@ -36,7 +36,7 @@ let
   value = inputs.value or null;
 
   passthrus_ = {
-    valur = inputs.value;
+    value = inputs.value;
     script = builtins.concatStringsSep "\n" ([ exportsString registerToEnv ]);
     isUnit = true;
   } // (inputs.passthrus or {});
