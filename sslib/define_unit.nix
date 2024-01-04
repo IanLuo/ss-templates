@@ -21,6 +21,8 @@ pkgs , stdenv , name, lib
 
 , passthrus ? {}
 
+, isPackage ? false
+
 , ...
 }@inputs:
 
@@ -36,6 +38,7 @@ let
   value = inputs.value or null;
 
   passthrus_ = {
+    inherit isPackage;
     value = inputs.value;
     script = builtins.concatStringsSep "\n" ([ exportsString registerToEnv ]);
     isUnit = true;
@@ -43,24 +46,24 @@ let
 
 in
   let 
-  drv = stdenv.mkDerivation {
-    name = inputs.name;
+    drv = stdenv.mkDerivation {
+      name = "${inputs.name}";
 
-    src = inputs.src;
+      src = inputs.src;
 
-    installPhase = inputs.installPhase or "";
+      installPhase = inputs.installPhase or "";
 
-    dontConfigure = if (lib.attrsets.hasAttrByPath ["dontConfigure"] inputs) then inputs.dontConfigure else false;
+      dontConfigure = if (lib.attrsets.hasAttrByPath ["dontConfigure"] inputs) then inputs.dontConfigure else false;
 
-    buildPhase = ''
-      mkdir -p $out/bin
+      buildPhase = ''
+        mkdir -p $out/bin
 
-      ${buildScript}
-    '';
+        ${buildScript}
+      '';
 
-    propagatedBuildInputs = buildInputs;
+      propagatedBuildInputs = buildInputs;
 
-    passthru = passthrus_;
-  };
+      passthru = passthrus_;
+    };
   in 
     drv 

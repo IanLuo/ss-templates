@@ -8,6 +8,7 @@ let
 in with pkgs; {
   language = callPackage ./language commonParams;
   db = callPackage ./db commonParams;
+  inherit sslib;
 }
 
 
