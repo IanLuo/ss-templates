@@ -35,11 +35,11 @@ let
 
 # show all units
   registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
-  value = inputs.value or null;
+  value_ = inputs.value or null;
 
   passthrus_ = {
     inherit isPackage;
-    value = inputs.value;
+    value = value_;
     script = builtins.concatStringsSep "\n" ([ exportsString registerToEnv ]);
     isUnit = true;
   } // (inputs.passthrus or {});
