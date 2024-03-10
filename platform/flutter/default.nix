@@ -27,18 +27,20 @@ let
 
   url = "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_${platform}_${version}-${channel}.zip";
 in
-  let flutter = stdenv.mkDerivation {
-    name = "flutter-${version}-darwin-arm64";
-    src = fetchzip {
-      url = url;
-      hash = sha256[version]; #TODO: handle missing version
+  let 
+    flutter = stdenv.mkDerivation {
+      name = "flutter-${version}";
+      src = fetchzip {
+        url = url;
+        hash = sha256[version]; #TODO: handle missing version
+      };
+
+      buildPhase = ''
+        mkdir -p $out
+        cp -r . $out
+      '';
     };
 
-    buildPhase = ''
-      mkdir -p $out
-      cp -r . $out
-    '';
-  };
   in 
     sslib.defineUnit {
       name = "flutter-${version}";
@@ -46,15 +48,15 @@ in
       passthrus = {
         version = version;
         shellHook = ''
-                  flutter_dir=~/.cache/flutter/${version}
-                  if [ ! -d $flutter_dir ]; then
-                    mkdir -p $flutter_dir
-                    cp -R ${flutter}/. $flutter_dir
-                    chmod -R +w $flutter_dir
-                  fi
+          flutter_dir=~/.cache/flutter/${version}
+          if [ ! -d $flutter_dir ]; then
+            mkdir -p $flutter_dir
+            cp -R ${flutter}/. $flutter_dir
+            chmod -R +w $flutter_dir
+          fi
 
-                  export FLUTTER_HOME=$flutter_dir/bin
-                  export PATH=$PATH:$flutter_dir/bin
-                '';
+          export FLUTTER_HOME=$flutter_dir/bin
+          export PATH=$PATH:$flutter_dir/bin
+        '';
       };
     }

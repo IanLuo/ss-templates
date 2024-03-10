@@ -4,11 +4,12 @@ sslib
 }:
 {
 xcodeVersion
+, xcodeBaseDir ? null
 }:
 let
   xcodeWrapper = pkgs.xcodeenv.composeXcodeWrapper {
     version = xcodeVersion;
-    xcodeBaseDir = "/Applications/Xcode.app";
+    xcodeBaseDir = xcodeBaseDir;
   };
 in 
   sslib.defineUnit {
