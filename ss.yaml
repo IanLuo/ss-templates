@@ -1,0 +1,2 @@
+include:
+  nixpkgs: https://www.github.com/NixOS/nixpkgs-unstable
