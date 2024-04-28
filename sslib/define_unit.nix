@@ -1,27 +1,22 @@
 {
-pkgs , stdenv , name, lib 
+pkgs , stdenv , lib 
+, name ? "unknown"
+, version ? "unknown"
 
 # the source of the unit, can be a git repo, or a local path
-, src
-
-# script to run when build this unit, only used internally
-# help to achieve the functions for this unit
-, buildScript ? "" 
+, source 
 
 # env vars that will be set by this unit
 , envs ? {} 
 
-, installPhase ? null
+, instantiate ? null
 
-# this will be able to be used by other units as parameter
-# if not provided, the unit itself will be used
-, value ? null
+# actions are runnable script, by running this
+# unit and with the name of the action, will call the action
+# if no anbiguity, the action will be called directly
+, actions ? {}
 
-, buildInputs ? []
-
-, passthrus ? {}
-
-, isPackage ? false
+, listener ? [] 
 
 , ...
 }@inputs:
@@ -35,33 +30,58 @@ let
 
 # show all units
   registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
+  instantiate_ = if instantiate != null then instantiate else "";
   value_ = inputs.value or null;
 
   passthrus_ = {
-    inherit isPackage;
     value = value_;
-    script = builtins.concatStringsSep "\n" ([ exportsString registerToEnv ]);
+    script = builtins.concatStringsSep "\n" ([ exportsString registerToEnv instantiate_ ]);
     isUnit = true;
-  } // (inputs.passthrus or {});
+  };
+
+  findOutType = x:
+    if lib.isAttrs x then
+      if lib.hasAttr "out" x then
+        "drv"
+      else
+        "attrs"
+    else if lib.isPath x then
+      "path"
+    else
+      "material";
+
+  buildScriptForSource = source:
+    let 
+      sourceType = findOutType source;
+    in
+      if sourceType == "drv" then
+        ''
+          set -x
+          mkdir -p $out
+          ln -s ${source}/* $out
+        ''
+      else if sourceType == "path" then
+        ''
+          mkdir -p $out
+          cp -r ${source}/* $out
+        ''
+      else
+        ''
+          echo "source: ${source}" > $out
+        '';
+
+  buildPhaseScript = buildScriptForSource inputs.source;
 
 in
   let 
     drv = stdenv.mkDerivation {
-      name = "${inputs.name}";
+      name = "${name}-${version}";
 
-      src = inputs.src;
-
-      installPhase = inputs.installPhase or "";
+      src = inputs.source;
 
       dontConfigure = if (lib.attrsets.hasAttrByPath ["dontConfigure"] inputs) then inputs.dontConfigure else false;
 
-      buildPhase = ''
-        mkdir -p $out/bin
-
-        ${buildScript}
-      '';
-
-      propagatedBuildInputs = buildInputs;
+      buildPhase = buildPhaseScript;
 
       passthru = passthrus_;
     };
