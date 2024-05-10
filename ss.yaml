@@ -1,2 +1,2 @@
 include:
-  nixpkgs: https://www.github.com/NixOS/nixpkgs-unstable
+  nixpkgs: github:NixOS/nixpkgs/nixpkgs-unstable
