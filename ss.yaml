@@ -5,4 +5,4 @@ include:
   ss: path:///./
   nixpkgs: 
     url: https://github.com/NixOS/nixpkgs
-    branch: nixpkgs-unstable
+    ref: nixpkgs-unstable
