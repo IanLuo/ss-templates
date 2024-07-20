@@ -1,7 +1,9 @@
 {
 pkgs , stdenv , lib 
-, name ? "unknown"
-, version ? "unknown"
+}:
+{
+name 
+, version ? null
 
 # the source of the unit, can be a git repo, or a local path
 , source 
@@ -10,13 +12,6 @@ pkgs , stdenv , lib
 , envs ? {} 
 
 , instantiate ? null
-
-# actions are runnable script, by running this
-# unit and with the name of the action, will call the action
-# if no anbiguity, the action will be called directly
-, actions ? {}
-
-, listener ? [] 
 
 , ...
 }@inputs:
@@ -36,7 +31,6 @@ let
   passthrus_ = {
     value = value_;
     script = builtins.concatStringsSep "\n" ([ exportsString registerToEnv instantiate_ ]);
-    isUnit = true;
   };
 
   findOutType = x:
@@ -75,7 +69,7 @@ let
 in
   let 
     drv = stdenv.mkDerivation {
-      name = "${name}-${version}";
+      name = if version == null then "${name}" else "${name}-${version}";
 
       src = inputs.source;
 
