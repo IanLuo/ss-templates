@@ -1,7 +1,6 @@
-{
-pkgs
+{ pkgs
 , sslib
-} :
+}:
 {
-   postgres = pkgs.callPackage (import ./postgres sslib);
+  postgres = pkgs.callPackage (import ./postgres sslib);
 }

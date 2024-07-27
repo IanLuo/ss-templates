@@ -1,9 +1,7 @@
-{
-sslib
+{ sslib
 , pkgs
 }:
-{
-xcodeVersion
+{ xcodeVersion
 , xcodeBaseDir ? null
 }:
 let
@@ -11,13 +9,13 @@ let
     version = xcodeVersion;
     xcodeBaseDir = xcodeBaseDir;
   };
-in 
-  sslib.defineUnit {
-    name = "ios-env-xcode-${xcodeVersion}";
-    version = "0.0.1";
-    buildInputs = with pkgs; [ 
-      xcodeWrapper 
-      cocoapods
-      darwin.DarwinTools
-    ];
-  }
+in
+sslib.defineUnit {
+  name = "ios-env-xcode-${xcodeVersion}";
+  version = "0.0.1";
+  buildInputs = with pkgs; [
+    xcodeWrapper
+    cocoapods
+    darwin.DarwinTools
+  ];
+}

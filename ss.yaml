@@ -1,8 +1,0 @@
-metadata:
-  name: ss-templates
-
-include:
-  ss: path:///./
-  nixpkgs: 
-    url: https://github.com/NixOS/nixpkgs
-    ref: nixpkgs-unstable

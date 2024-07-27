@@ -1,43 +1,42 @@
 sslib:
 
-{
-pkgs
+{ pkgs
 , username ? "admin"
 , password ? "admin"
 , database ? "database"
-, host ? "" 
+, host ? ""
 , folder ? "db/postgres"
 , stdenv
 }:
-let 
+let
   setup-db = pkgs.writeScriptBin "setup-db" ''
-              #!/bin/sh
+    #!/bin/sh
 
-              if [ ! -d $PGDATA ]; then
-                mkdir -p $PGDATA
-              fi
+    if [ ! -d $PGDATA ]; then
+      mkdir -p $PGDATA
+    fi
 
-              psql -v ON_ERROR_STOP=1 --username "$username" <<-EOSQL
-                  CREATE USER $username WITH PASSWORD '$password';
-                  CREATE DATABASE $database;
-                  GRANT ALL PRIVILEGES ON DATABASE $database TO $username;  
-              EOSQL
-            '';
+    psql -v ON_ERROR_STOP=1 --username "$username" <<-EOSQL
+        CREATE USER $username WITH PASSWORD '$password';
+        CREATE DATABASE $database;
+        GRANT ALL PRIVILEGES ON DATABASE $database TO $username;  
+    EOSQL
+  '';
 
   restart-db = pkgs.writeScriptBin "restart-db" ''
-              #!/bin/sh
+    #!/bin/sh
 
-              if [ ! -d $PGDATA ]; then
-                echo "No PGDATA folder found, initializing database"
-                setup-db
-              fi
+    if [ ! -d $PGDATA ]; then
+      echo "No PGDATA folder found, initializing database"
+      setup-db
+    fi
 
-              if pg_ctl status >/dev/null 2>&1; then
-                pg_ctl stop
-              fi
+    if pg_ctl status >/dev/null 2>&1; then
+      pg_ctl stop
+    fi
 
-              pg_ctl -D $PGDATA start
-            '';
+    pg_ctl -D $PGDATA start
+  '';
 
   env = {
     PGUSER = username;
@@ -47,10 +46,10 @@ let
     PGHOST = if host == "" then folder else host;
   };
 in
-  sslib.defineUnit {
-    name = "postgres";
+sslib.defineUnit {
+  name = "postgres";
 
-    buildInputs = [ pkgs.postgresql setup-db restart-db ];
+  buildInputs = [ pkgs.postgresql setup-db restart-db ];
 
-    envs = env;
-  }
+  envs = env;
+}

@@ -1,12 +1,10 @@
-{ 
-stdenv
+{ stdenv
 , fetchzip
 , system
 , sslib
 }:
 
-{
-version
+{ version
 , channel ? "stable"
 }:
 
@@ -27,36 +25,36 @@ let
 
   url = "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_${platform}_${version}-${channel}.zip";
 in
-  let 
-    flutter = stdenv.mkDerivation {
-      name = "flutter-${version}";
-      src = fetchzip {
-        url = url;
-        hash = sha256[version]; #TODO: handle missing version
-      };
-
-      buildPhase = ''
-        mkdir -p $out
-        cp -r . $out
-      '';
+let
+  flutter = stdenv.mkDerivation {
+    name = "flutter-${version}";
+    src = fetchzip {
+      url = url;
+      hash = sha256 [ version ]; #TODO: handle missing version
     };
 
-  in 
-    sslib.defineUnit {
-      name = "flutter-${version}";
-      value = flutter;
-      passthrus = {
-        version = version;
-        shellHook = ''
-          flutter_dir=~/.cache/flutter/${version}
-          if [ ! -d $flutter_dir ]; then
-            mkdir -p $flutter_dir
-            cp -R ${flutter}/. $flutter_dir
-            chmod -R +w $flutter_dir
-          fi
+    buildPhase = ''
+      mkdir -p $out
+      cp -r . $out
+    '';
+  };
 
-          export FLUTTER_HOME=$flutter_dir/bin
-          export PATH=$PATH:$flutter_dir/bin
-        '';
-      };
-    }
+in
+sslib.defineUnit {
+  name = "flutter-${version}";
+  value = flutter;
+  passthrus = {
+    version = version;
+    shellHook = ''
+      flutter_dir=~/.cache/flutter/${version}
+      if [ ! -d $flutter_dir ]; then
+        mkdir -p $flutter_dir
+        cp -R ${flutter}/. $flutter_dir
+        chmod -R +w $flutter_dir
+      fi
+
+      export FLUTTER_HOME=$flutter_dir/bin
+      export PATH=$PATH:$flutter_dir/bin
+    '';
+  };
+}

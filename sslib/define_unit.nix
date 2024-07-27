@@ -1,15 +1,15 @@
-{
-pkgs , stdenv , lib 
+{ pkgs
+, stdenv
+, lib
 }:
-{
-name 
+{ name
 , version ? null
 
-# the source of the unit, can be a git repo, or a local path
-, source 
+  # the source of the unit, can be a git repo, or a local path
+, source
 
-# env vars that will be set by this unit
-, envs ? {} 
+  # env vars that will be set by this unit
+, envs ? { }
 
 , instantiate ? null
 
@@ -17,13 +17,15 @@ name
 }@inputs:
 
 let
-  exportsString = if envs != null 
-    then lib.strings.concatMapStrings
-      (x: "${x} \n") 
-      (lib.attrsets.mapAttrsToList (x: y: "export ${x}=${y}") envs)
+  exportsString =
+    if envs != null
+    then
+      lib.strings.concatMapStrings
+        (x: "${x} \n")
+        (lib.attrsets.mapAttrsToList (x: y: "export ${x}=${y}") envs)
     else "";
 
-# show all units
+  # show all units
   registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
   instantiate_ = if instantiate != null then instantiate else "";
   value_ = inputs.value or null;
@@ -45,39 +47,39 @@ let
       "material";
 
   buildScriptForSource = source:
-    let 
+    let
       sourceType = findOutType source;
     in
-      if sourceType == "drv" then
-        ''
-          set -x
-          mkdir -p $out
-          ln -s ${source}/* $out
-        ''
-      else if sourceType == "path" then
-        ''
-          mkdir -p $out
-          cp -r ${source}/* $out
-        ''
-      else
-        ''
-          echo "source: ${source}" > $out
-        '';
+    if sourceType == "drv" then
+      ''
+        set -x
+        mkdir -p $out
+        ln -s ${source}/* $out
+      ''
+    else if sourceType == "path" then
+      ''
+        mkdir -p $out
+        cp -r ${source}/* $out
+      ''
+    else
+      ''
+        echo "source: ${source}" > $out
+      '';
 
   buildPhaseScript = buildScriptForSource inputs.source;
 
 in
-  let 
-    drv = stdenv.mkDerivation {
-      name = if version == null then "${name}" else "${name}-${version}";
+let
+  drv = stdenv.mkDerivation {
+    name = if version == null then "${name}" else "${name}-${version}";
 
-      src = inputs.source;
+    src = inputs.source;
 
-      dontConfigure = if (lib.attrsets.hasAttrByPath ["dontConfigure"] inputs) then inputs.dontConfigure else false;
+    dontConfigure = if (lib.attrsets.hasAttrByPath [ "dontConfigure" ] inputs) then inputs.dontConfigure else false;
 
-      buildPhase = buildPhaseScript;
+    buildPhase = buildPhaseScript;
 
-      passthru = passthrus_;
-    };
-  in 
-    drv
+    passthru = passthrus_;
+  };
+in
+drv
