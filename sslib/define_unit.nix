@@ -2,37 +2,33 @@
 , stdenv
 , lib
 }:
-{ name
-, version ? null
 
+{ name
   # the source of the unit, can be a git repo, or a local path
 , source
-
   # env vars that will be set by this unit
-, envs ? { }
-
-, instantiate ? null
-
+, envs ? null
+, instantiate ? null 
 , ...
 }@inputs:
 
 let
+
+  envs_ = if envs == null then {} else inputs.envs;
+  instantiate_ = if instantiate == null then "" else inputs.instantiate;
+
   exportsString =
-    if envs != null
-    then
       lib.strings.concatMapStrings
         (x: "${x} \n")
-        (lib.attrsets.mapAttrsToList (x: y: "export ${x}=${y}") envs)
-    else "";
+        (lib.attrsets.mapAttrsToList (x: y: "export ${x}=${y}") envs_);
 
   # show all units
   registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
-  instantiate_ = if instantiate != null then instantiate else "";
-  value_ = inputs.value or null;
+
 
   passthrus_ = {
-    value = value_;
-    script = builtins.concatStringsSep "\n" ([ exportsString registerToEnv instantiate_ ]);
+    isUnit = true;
+    script = builtins.concatStringsSep "\n" [ exportsString registerToEnv instantiate_ ];
   };
 
   findOutType = x:
@@ -52,7 +48,6 @@ let
     in
     if sourceType == "drv" then
       ''
-        set -x
         mkdir -p $out
         ln -s ${source}/* $out
       ''
@@ -63,23 +58,18 @@ let
       ''
     else
       ''
-        echo "source: ${source}" > $out
       '';
 
   buildPhaseScript = buildScriptForSource inputs.source;
 
 in
-let
-  drv = stdenv.mkDerivation {
-    name = if version == null then "${name}" else "${name}-${version}";
-
-    src = inputs.source;
-
-    dontConfigure = if (lib.attrsets.hasAttrByPath [ "dontConfigure" ] inputs) then inputs.dontConfigure else false;
-
-    buildPhase = buildPhaseScript;
-
-    passthru = passthrus_;
-  };
-in
-drv
+  let
+    drv = stdenv.mkDerivation {
+      name = name;
+      src = inputs.source;
+      dontConfigure = if (lib.attrsets.hasAttrByPath [ "dontConfigure" ] inputs) then inputs.dontConfigure else false;
+      installPhase = buildPhaseScript;
+      passthru = passthrus_;
+    };
+  in
+  drv

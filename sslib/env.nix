@@ -1,3 +1,4 @@
+{}:
 let
   SSBase = "SS_PROJECT_BASE";
   RootFolder = "ss_conf";
@@ -8,7 +9,9 @@ let
   pathInProject = relative: "\$${SSBase}/${relative}";
   pathInDataFolder = relative: pathInProject "${DataFolder}/${relative}";
   pathInRootFolder = relative: pathInProject "${RootFolder}/${relative}";
+
+  system = builtins.currentSystem;
 in
 {
-  inherit SSBase pathInProject pathInDataFolder;
+  inherit SSBase pathInProject pathInDataFolder system;
 }

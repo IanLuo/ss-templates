@@ -7,6 +7,6 @@ then
 else
   defineUnit {
     name = drv.name;
-    value = drv;
+    source = drv;
   }
 
