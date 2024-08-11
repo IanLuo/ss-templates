@@ -8,14 +8,15 @@
 , source
   # env vars that will be set by this unit
 , envs ? null
-, instantiate ? null 
+, onStart ? null 
+, install ? "" 
 , ...
 }@inputs:
 
 let
 
   envs_ = if envs == null then {} else inputs.envs;
-  instantiate_ = if instantiate == null then "" else inputs.instantiate;
+  onStart_ = if onStart == null then "" else inputs.onStart;
 
   exportsString =
       lib.strings.concatMapStrings
@@ -28,7 +29,7 @@ let
 
   passthrus_ = {
     isUnit = true;
-    script = builtins.concatStringsSep "\n" [ exportsString registerToEnv instantiate_ ];
+    script = builtins.concatStringsSep "\n" [ exportsString registerToEnv onStart_ ];
   };
 
   findOutType = x:
@@ -57,8 +58,7 @@ let
         cp -r ${source}/* $out
       ''
     else
-      ''
-      '';
+        inputs.install or "";
 
   buildPhaseScript = buildScriptForSource inputs.source;
 
