@@ -8,29 +8,25 @@
 , source
   # env vars that will be set by this unit
 , envs ? null
-, onStart ? null 
+, onstart ? null 
 , install ? "" 
+, actions ? null
 , ...
 }@inputs:
 
 let
+  actions_ = if actions != null then actions else {};
 
-  envs_ = if envs == null then {} else inputs.envs;
-  onStart_ = if onStart == null then "" else inputs.onStart;
+  make_action_command = action_str: name: pkgs.writeScriptBin "${name}" ''
+    #!/usr/bin/env bash
+    ${action_str}
+    '';
 
-  exportsString =
-      lib.strings.concatMapStrings
-        (x: "${x} \n")
-        (lib.attrsets.mapAttrsToList (x: y: "export ${x}=${y}") envs_);
-
-  # show all units
-  registerToEnv = "export SS_UNITS=${lib.strings.escapeShellArg name}:$SS_UNITS";
-
+  action_commands = lib.mapAttrsToList (n: action: make_action_command action "${name}.${n}") actions_;
 
   passthrus_ = {
     isUnit = true;
-    script = builtins.concatStringsSep "\n" [ exportsString registerToEnv onStart_ ];
-  };
+  } // (lib.attrsets.removeAttrs inputs [ "source" "install" "actions" ]);
 
   findOutType = x:
     if lib.isAttrs x then
@@ -43,10 +39,25 @@ let
     else
       "material";
 
-  buildScriptForSource = source:
+  propagateActionCommands = actionCommands:
+    if actionCommands == null then 
+      "" 
+    else 
+      let
+        actionCommandsString = lib.strings.concatMapStrings
+          (x: "${x} ")
+          (map (x: "${x}/bin/*") actionCommands);
+      in
+      ''
+        mkdir -p $out/actions
+        ln -s ${actionCommandsString} $out/actions
+      ''; 
+
+  installScriptForSource = source: 
     let
       sourceType = findOutType source;
     in
+
     if sourceType == "drv" then
       ''
         mkdir -p $out
@@ -60,7 +71,7 @@ let
     else
         inputs.install or "";
 
-  buildPhaseScript = buildScriptForSource inputs.source;
+  installPhaseScript = (installScriptForSource inputs.source) + (propagateActionCommands action_commands);
 
 in
   let
@@ -68,7 +79,7 @@ in
       name = name;
       src = inputs.source;
       dontConfigure = if (lib.attrsets.hasAttrByPath [ "dontConfigure" ] inputs) then inputs.dontConfigure else false;
-      installPhase = buildPhaseScript;
+      installPhase = installPhaseScript;
       passthru = passthrus_;
     };
   in
