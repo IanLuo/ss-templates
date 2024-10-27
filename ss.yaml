@@ -1,0 +1,42 @@
+metadata:
+  name: templates
+  version: 0.0.1
+  description: A collection of templates for the ss tool
+
+include:
+  nixpkgs:
+    url: https://github.com/NixOS/nixpkgs
+    ref: nixpkgs-unstable
+
+units:
+  process-helper:
+    source: null 
+    action-flows: 
+      port-available:
+        - sh>: |
+            port=$1
+            if ss -tln | grep -q ":$port"; then
+              echo "yes"'
+            fi
+            
+            echo no
+
+        - sh>: |
+            result = $1
+            if [ "$result" == "yes" ]; then
+              echo "Port is available"
+            else
+              echo "Port is not available"
+            fi
+
+
+  git-helper:
+    ignores: []
+    doc:
+    source: nixpkgs.git-extras
+    onstart:
+      sh>: |
+        #! /bin/env bash
+
+        ignores_array="${toString ignores}"
+        git ignore $ignores_array
