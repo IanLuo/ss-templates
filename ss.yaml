@@ -11,15 +11,15 @@ include:
 units:
   process-helper:
     source: null 
-    action-flows: 
+    actions:
+      kill:
+        sh>: |
+            pid=$1
+            kill -9 $pid
       port-available:
         - sh>: |
             port=$1
-            if ss -tln | grep -q ":$port"; then
-              echo "yes"'
-            fi
-            
-            echo no
+            echo $port 
 
         - sh>: |
             result = $1
