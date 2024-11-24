@@ -3,7 +3,7 @@ metadata:
   version: 0.0.1
   description: A collection of templates for the ss tool
 
-include:
+includes:
   nixpkgs:
     url: https://github.com/NixOS/nixpkgs
     ref: nixpkgs-unstable
